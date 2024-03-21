@@ -39,6 +39,18 @@
         background-color: #e6e6e6;
         color: #333;
     }
+    .history-screen {
+        width: calc(100% - 20px);
+        height: 100px;
+        margin-bottom: 20px;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        background-color: #f0f0f0;
+        color: #666;
+        overflow-y: scroll;
+    }
     .row {
         display: flex;
         justify-content: space-between;
@@ -71,12 +83,18 @@
     .row .btn.equals {
         background-color: #4CAF50;
     }
+    .hide-history {
+        display: none;
+    }
 </style>
 </head>
 <body>
 <div class="calculator">
     <div class="calculator-name">Anne Wyne Mabarong Calculator</div>
     <input type="text" class="screen" id="screen" readonly>
+    <div class="history-screen hide-history" id="history-screen"></div>
+    <input type="text" class="history-screen hide-history" id="history-screen" readonly>
+    <button class="toggle-history">Toggle History</button>
     <div class="row">
         <button class="btn clear">C</button>
         <button class="btn delete">DEL</button>
@@ -85,13 +103,13 @@
         <button class="btn num">7</button>
         <button class="btn num">8</button>
         <button class="btn num">9</button>
-        <button class="btn operator">/</button>
+        <button class="btn operator">÷</button>
     </div>
     <div class="row">
         <button class="btn num">4</button>
         <button class="btn num">5</button>
         <button class="btn num">6</button>
-        <button class="btn operator">*</button>
+        <button class="btn operator">×</button>
     </div>
     <div class="row">
         <button class="btn num">1</button>
@@ -108,16 +126,19 @@
 </div>
 <script>
     class Calculator {
-        constructor(screenElement) {
+        constructor(screenElement, historyElement, toggleButton) {
             this.screenElement = screenElement;
+            this.historyElement = historyElement;
+            this.toggleButton = toggleButton;
             this.clear();
-            this.history = [];
         }
         clear() {
             this.currentOperand = '';
             this.previousOperand = '';
             this.operation = undefined;
+            this.history = [];
             this.updateScreen();
+            this.updateHistory();
         }
         delete() {
             this.currentOperand = this.currentOperand.toString().slice(0, -1);
@@ -141,12 +162,12 @@
             this.operation = operation;
             this.previousOperand = this.currentOperand;
             this.currentOperand = '';
-            this.updateScreen();
+            this.screenElement.value = this.previousOperand + ' ' + operation + ' ';
         }
         compute() {
             let computation;
-            const prev = parseFloat(this.previousOperand);
-            const current = parseFloat(this.currentOperand);
+            const prev = parseFloat(this.previousOperand.replace(/,/g, ''));
+            const current = parseFloat(this.currentOperand.replace(/,/g, ''));
             if (isNaN(prev) || isNaN(current)) return;
             switch (this.operation) {
                 case '+':
@@ -155,51 +176,71 @@
                 case '-':
                     computation = prev - current;
                     break;
-                case '*':
+                case '×':
                     computation = prev * current;
                     break;
-                case '/':
+                case '÷':
                     computation = prev / current;
                     break;
                 default:
                     return;
             }
-            this.currentOperand = computation;
+            this.currentOperand = new Intl.NumberFormat('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 10}).format(computation);
+            this.history.push({ 
+                expression: `${new Intl.NumberFormat().format(prev)} ${this.operation} ${new Intl.NumberFormat().format(current)}`, 
+                result: this.currentOperand 
+            });
             this.operation = undefined;
             this.previousOperand = '';
             this.updateScreen();
-            this.history.push(`${prev} ${this.operation} ${current} = ${computation}`);
-        }
-        printHistory() {
-            console.log(this.history.join('\n')); // Print history of calculations
+            this.updateHistory();
         }
         updateScreen() {
             this.screenElement.value = this.currentOperand;
         }
+        updateHistory() {
+        this.historyElement.innerHTML = this.history.map((entry, index) => 
+        `<p>${index + 1}. ${entry.expression} = ${entry.result}</p>`).join('');
+        }
     }
-    const calculator = new Calculator(document.querySelector('.screen'));
-    document.querySelectorAll('.num, .decimal').forEach(button => {
-        button.addEventListener('click', () => {
-            if (button.classList.contains('decimal')) {
-                calculator.appendDecimal();
-            } else {
-                calculator.appendNumber(button.innerText);
-            }
+
+    const calculator = new Calculator(
+        document.querySelector('.screen'), 
+        document.querySelector('.history-screen'),
+        document.querySelector('.toggle-history')
+    );
+   
+document.querySelectorAll('.num').forEach(button => {
+    button.addEventListener('click', () => {
+        calculator.appendNumber(button.innerText);
+    });
+});
+
+document.querySelectorAll('.operator').forEach(button => {
+    button.addEventListener('click', () => {
+        calculator.chooseOperation(button.innerText);
         });
     });
+   
     document.querySelectorAll('.operator').forEach(button => {
         button.addEventListener('click', () => {
             calculator.chooseOperation(button.innerText);
         });
     });
+   
     document.querySelector('.equals').addEventListener('click', button => {
         calculator.compute();
     });
+   
     document.querySelector('.clear').addEventListener('click', button => {
         calculator.clear();
     });
+   
     document.querySelector('.delete').addEventListener('click', button => {
         calculator.delete();
+    });
+    document.querySelector('.toggle-history').addEventListener('click', () => {
+        calculator.historyElement.classList.toggle('hide-history');
     });
 </script>
 </body>

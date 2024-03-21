@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 20px;
+  }
+  .calculator-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
+  .calculator {
+    border: 1px solid #888;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    display: inline-block;
+    padding: 20px;
+    margin: 10px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex: 1;
+    min-width: 260px;
+    max-width: 400px;
+  }
+  .result-screen {
+    background-color: #e0e0e0;
+    margin-bottom: 10px;
+    padding: 10px;
+    text-align: right;
+    border-radius: 3px;
+    min-height: 40px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .calculator fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+  .calculator input[type=number], .calculator input[type=button] {
+    margin: 5px;
+    padding: 8px;
+  }
+  input[type=button] {
+    width: calc(50% - 14px);
+    cursor: pointer;
+  }
+  label {
+    display: block;
+    margin: 5px 0;
+  }
+  .calculator label {
+    margin-right: 10px;
+  }
+  .result-screen {
+    background-color: #e0e0e0;
+    margin-bottom: 10px;
+    padding: 10px;
+    text-align: right;
+  }
+
+  @media (max-width: 768px) {
+    .calculator-container {
+      flex-direction: column;
+      align-items: center;
+  }
+</style>
+</head>
+<body>
+<h2>Finance Calculations</h2>
+
+<div class="calculator">
+  <div id="resultPV" class="result-screen"></div>
+  <fieldset>
+    <legend>Present Value Calculation</legend>
+    <label for="futureValuePV">Future Value:</label>
+    <input type="number" id="futureValuePV" placeholder="Enter future value" />
+    <label for="ratePV">Rate:</label>
+    <input type="number" id="ratePV" placeholder="Enter rate" step="0.01" />
+    <label for="yearsPV">Years:</label>
+    <input type="number" id="yearsPV" placeholder="Enter number of years" />
+    <input type="button" value="Calculate" onclick="calculatePresentValue()" />
+    <input type="button" value="Clear" onclick="clearInputs('futureValuePV', 'ratePV', 'yearsPV', 'resultPV')" />
+  </fieldset>
+</div>
+
+<div class="calculator">
+  <div id="resultPVA" class="result-screen"></div>
+  <fieldset>
+    <legend>Present Value of Annuity Calculation</legend>
+    <label for="cashFlowPVA">Cash Flow:</label>
+    <input type="number" id="cashFlowPVA" placeholder="Enter cash flow" />
+    <label for="ratePVA">Rate:</label>
+    <input type="number" id="ratePVA" placeholder="Enter rate" step="0.01" />
+    <label for="yearsPVA">Years:</label>
+    <input type="number" id="yearsPVA" placeholder="Enter number of years" />
+    <input type="button" value="Calculate" onclick="calculatePresentValueOfAnnuity()" />
+    <input type="button" value="Clear" onclick="clearInputs('futureValuePV', 'ratePV', 'yearsPV', 'resultPV')" />
+  </fieldset>
+</div>
+
+<div class="calculator">
+  <div id="resultFVSI" class="result-screen"></div>
+  <fieldset>
+    <legend>Future Value with Simple Interest Calculation</legend>
+    <label for="principalAmountFVSI">Principal Amount:</label>
+    <input type="number" id="principalAmountFVSI" placeholder="Enter principal amount" />
+    <label for="rateFVSI">Rate:</label>
+    <input type="number" id="rateFVSI" placeholder="Enter rate" step="0.01" />
+    <label for="yearsFVSI">Years:</label>
+    <input type="number" id="yearsFVSI" placeholder="Enter number of years" />
+    <input type="button" value="Calculate" onclick="calculateFutureValueWithSimpleInterest()" />
+    <input type="button" value="Clear" onclick="clearInputs('futureValuePV', 'ratePV', 'yearsPV', 'resultPV')" />
+  </fieldset>
+</div>
+
+<div class="calculator">
+  <div id="resultFVCI" class="result-screen"></div>
+  <fieldset>
+    <legend>Future Value with Compound Interest Calculation</legend>
+    <label for="principalAmountFVCI">Principal Amount:</label>
+    <input type="number" id="principalAmountFVCI" placeholder="Enter principal amount" />
+    <label for="rateFVCI">Rate:</label>
+    <input type="number" id="rateFVCI" placeholder="Enter rate" step="0.01" />
+    <label for="yearsFVCI">Years:</label>
+    <input type="number" id="yearsFVCI" placeholder="Enter number of years" />
+    <input type="button" value="Calculate" onclick="calculateFutureValueWithCompoundInterest()" />
+    <input type="button" value="Clear" onclick="clearInputs('futureValuePV', 'ratePV', 'yearsPV', 'resultPV')" />
+  </fieldset>
+</div>
+
+<script type="text/javascript">
+    
+    function calculatePresentValue(){
+      var futureValue = parseFloat(document.getElementById('futureValuePV').value);
+      var rate = parseFloat(document.getElementById('ratePV').value) / 100;
+      var years = parseFloat(document.getElementById('yearsPV').value);
+      var presentValue = futureValue / (Math.pow((1 + rate), years));
+      document.getElementById('resultPV').innerText = "Present Value: " + presentValue.toFixed(2);
+    }
+
+    function clearInputs(futureValueId, rateId, yearsId, resultId){
+      document.getElementById(futureValueId).value = '';
+      document.getElementById(rateId).value = '';
+      document.getElementById(yearsId).value = '';
+      document.getElementById(resultId).innerText = '';
+    }
+
+    function calculatePresentValueOfAnnuity(){
+      var cashFlow = parseFloat(document.getElementById('cashFlowPVA').value);
+      var rate = parseFloat(document.getElementById('ratePVA').value) / 100;
+      var years = parseFloat(document.getElementById('yearsPVA').value);
+      var presentValueOfAnnuity = cashFlow * (1 - Math.pow((1 + rate), -years)) / rate;
+      document.getElementById('resultPVA').innerText = "Present Value of Annuity: " + presentValueOfAnnuity.toFixed(2);
+    }
+
+    function calculateFutureValueWithSimpleInterest(){
+      var principalAmount = parseFloat(document.getElementById('principalAmountFVSI').value);
+      var rate = parseFloat(document.getElementById('rateFVSI').value) / 100;
+      var years = parseFloat(document.getElementById('yearsFVSI').value);
+      var futureValueWithSimpleInterest = principalAmount * (1 + (rate * years));
+      document.getElementById('resultFVSI').innerText = "Future Value with Simple Interest: " + futureValueWithSimpleInterest.toFixed(2);
+    }
+
+    function calculateFutureValueWithCompoundInterest(){
+      var principalAmount = parseFloat(document.getElementById('principalAmountFVCI').value);
+      var rate = parseFloat(document.getElementById('rateFVCI').value) / 100;
+      var years = parseFloat(document.getElementById('yearsFVCI').value);
+      var futureValueWithCompoundInterest = principalAmount * Math.pow((1 + rate), years);
+      document.getElementById('resultFVCI').innerText = "Future Value with Compound Interest: " + futureValueWithCompoundInterest.toFixed(2);
+    }
+
+</script>
+
+</body>
+</html>
